@@ -239,7 +239,7 @@ As horas são **estimativas anteriores do backlog assistido por IA**, não medi�
 - Para o eixo A, o limite informado é de **até 3 h/dia**. M1 atribui **19 h exclusivas + participação em 7 h de contratos compartilhados**, e parte do setup já foi realizada manualmente. O coordenador **não pode** executar integralmente as 7 h compartilhadas; B/C devem preparar suas partes, cabendo ao A aprovar/revisar. Reavaliar já no começo se houver retrabalho de ambiente.
 - M2 exige **20 h exclusivas de A em sete dias** — quase seu teto de 21 h, antes de reviews. Reservar revisões curtas e evitar tarefas de B/C. No M3 A tem 10 h exclusivas, preservando alguma capacidade de revisão e release.
 - O eixo B precisa lidar com **16 h → 23 h → 21 h**, e C com **23 h → 26 h → 13 h**. Isso pressupõe disponibilidade dos colegas **a confirmar** e que possam produzir várias horas por dia nas janelas mais intensas. Sem essa confirmação, o plano não é uma promessa viável.
-- **Dependências dentro de um mesmo marco continuam sequenciais**. Por exemplo, `RUN-04 → CORE-07 → T08 → T09 → T10` tem caminho serial; paralelizar por arquivos é necessário, mas não elimina esse gargalo. Se o Codex empacar nessa sequência, escalar imediatamente.
+- **Dependências dentro de um mesmo marco continuam sequenciais**. Por exemplo, `RUN-04 → CORE-07 → T08 → T09 → T10` tem caminho serial; paralelizar por arquivos é necessário, mas não elimina esse gargalo. Bloqueios nessa sequência exigem coordenação entre os responsáveis.
 - Os três marcos abrangem **40 cards até 03/11**. Os outros três são de estudo/entrega: `EST-01`, `EST-02` e `ENT-01`.
 
 ### Regras de contingência por marco

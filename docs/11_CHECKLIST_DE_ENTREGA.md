@@ -1,97 +1,49 @@
-# Checklist acadêmico e técnico para 11/11/2026
+# Checklist acadêmico e técnico — entrega de 11/11/2026
 
-> Revisão REL-PRE (09/11/2026), base de execução `8d07433`, sincronizada documentalmente com `249afaa` (#44): [relatório consolidado](auditorias/REL-PRE_FECHAMENTO_EIXO_A.md). Itens marcados referem-se ao escopo de evidência indicado, sem declarar a entrega pronta. Rede específica T08–T10, confirmação gráfica, relatório e reprodução final continuam pendentes. DOC-02 integrado no #42 com aprovação A; revisão C registrada em 09/11 com ressalvas ([parecer](auditorias/DOC-02_REVISAO_C_RUNTIME.md)); correções aceitas por B no #43 (10/11).
+Atualizado documentalmente em 10/11/2026 para a cópia independente, branch `main`, commit de implementação `d851170`. As marcações abaixo distinguem execução automatizada, evidências históricas e aceite humano. A organização documental não reclassifica cards nem transforma PARTIAL em PASS.
 
-> Checklist não é comprovação. Só marcar `[x]` após verificar arquivo, teste e evidência. Requisitos não concluídos permanecem abertos.
+## Produto e testes
 
-## Produto e compilação
+| Verificação | Situação | Evidência e escopo |
+|---|---|---|
+| Pipeline Lexer → Parser/AST → Semântico/símbolos; AST → TAC e AST → C++ → G++ → binário | PASS no escopo executado | Regressão local de 10/11; [INT-02 versionado](auditorias/INT-02_REGRESSAO_INTEGRAL.md) registra a rodada anterior |
+| T01 e T02 | PASS, 30/30 cada na auditoria local | Comunicação loopback no T01 e resultados concorrentes no T02 |
+| T03 e T05–T07 | PASS | Oráculos numéricos/ordenação; T07 inclui mutação do TAC e assertions de índices |
+| T04 XOR | PARTIAL | Classificação correta; [aceite numérico pendente](auditorias/REL-PRE_FECHAMENTO_EIXO_A.md#2-t04--auditoria-numérica-e-proposta-para-decisão) |
+| T08 | PASS no harness; rede física histórica documentada | 32 checagens locais/loopback; [RUN-06](evidencias/RUN-06_REPRODUCAO_DOIS_PCS.md) para dois computadores |
+| T09 | PASS no harness | 54 checagens; cenário remoto executado em loopback, não prova física de outro computador |
+| T10 | PASS no cálculo/harness; aceite gráfico pendente | 126 checagens; ASCII + SVG externo; [ADR-014](03_DECISOES.md#adr-014--proposta-de-resolução-em-duas-etapas) |
+| T11 | PASS no verificador, 48/48 | MiniCompilador escrito em MiniPar, casos obrigatórios e inválidos, extração ARM |
+| CPUlator | Casos obrigatórios 22, −84 e 22 | [Provas versionadas](../tests/2026_2/test11/evidencias/README.md); reexecução assistida por IA em 10/11, conferência humana separada |
+| Runtime e falhas | PASS local/loopback | Seis grupos do runner; F1/F2/F3, cinco repetições cada no benchmark completo |
+| Terminal, Web original e Web didática | PASS no recorte executado | Testes automáticos e inspeção em navegador real das duas Webs |
 
-- [ ] Lexer com tokens e erro léxico.
-- [ ] Parser da BNF 2026.2 e AST real.
-- [ ] Análise semântica, escopos/tipos e tabela de símbolos.
-- [x] TAC verdadeiro, sem `EXPECTED_QUICKSORT_TAC` artificial.
-- [x] Gerador C++ equivalente, compilável com G++.
-- [ ] Executáveis gerados e rodando, inclusive no ambiente de entrega.
-- [x] `seq`, `par`, `fork`, `join` implementados e demonstrados.
-- [ ] Comunicação por canais/sockets e mensagens reais.
-- [ ] Execução local e remota em dois computadores com Join e falhas verificadas.
-- [ ] Comentários `#`, funções, objetos e recursão preservados conforme BNF/testes.
+A rodada local de 10/11 é preservada em `output/validacao_final/` (ignorado pelo Git). Ela não substitui as evidências versionadas de rede física, nem demonstra portabilidade universal ou aceite docente.
 
-## Programas de teste
+## Documentação acadêmica
 
-- [ ] T01: calculadora cliente-servidor.
-- [x] T02: fatorial e Fibonacci.
-- [x] T03: neurônio.
-- [ ] T04: XOR com critério numérico explícito.
-- [x] T05: recomendador.
-- [x] T06: quicksort OO.
-- [x] T07: quicksort iterativo + TAC real + sem corrupção de memória.
-- [ ] T08: 160 atividades, quatro avaliadores, resultados completos.
-- [ ] T09: T08 + Mandelbrot com execução concorrente verificável.
-- [ ] T10: T09 + Sierpinski visual, benchmark de cargas equivalentes.
-- [ ] T11: MiniCompilador escrito em MiniPar, Lexer/AST/TAC/tabela/resultado/ARM.
-- [ ] T11: três expressões e `.arm` executados no CPUlator.
-- [ ] Casos positivos/negativos; logs com comandos e oráculos, status honesto.
+- [x] [BNF](12_BNF_MINIPAR_2026_2.md) e [pseudocódigos](13_PSEUDOCODIGOS_NUCLEO.md) preservados.
+- [x] [UML](15_UML_MINIPAR_2026_2.md), [Product/Sprint Backlogs](14_PRODUCT_E_SPRINT_BACKLOGS.md), [contratos](02_CONTRATOS_TECNICOS.md) e [decisões](03_DECISOES.md) preservados.
+- [x] Evidências RUN-03, RUN-05, RUN-06, regressões e CPUlator preservadas.
+- [x] Instruções atuais de instalação, execução das três interfaces e testes no [README](../README.md) e no [guia de instalação](10_GUIA_SETUP_REPOSITORIO.md).
+- [x] Créditos da implementação herdada preservados.
+- [x] [Relatório acadêmico em PDF](relatorio/relatorio.pdf) presente, 132 páginas, 2.730.379 bytes; integridade preservada.
+- [ ] **Corrigir manualmente a capa do PDF:** ainda contém `https://github.com/VictorBrasileiroo/minipar-2026-2`; o destino desta entrega é `https://github.com/VictorBrasileiroo/projeto_minipar_2026-2`. O PDF não foi editado nesta preparação.
+- [ ] Equipe concluir a revisão acadêmica do PDF e conferir acesso aos arquivos após a publicação autorizada.
 
-## Interfaces
+O material de apresentação será entregue separadamente e não é um arquivo obrigatório deste repositório.
 
-- [ ] CLI/Terminal preservado.
-- [ ] Web antiga preservada.
-- [ ] Nova Web didática com editor e tokens.
-- [ ] Nova Web didática com AST visual muito melhor que a anterior.
-- [ ] Exibição semântico/símbolos/erros.
-- [ ] Exibição TAC e C++.
-- [ ] Compilar realmente, executar, mostrar stdout/stderr.
-- [ ] Download do binário correto da execução atual.
-- [ ] Instruções para iniciar as três interfaces.
-- [ ] Timeout e ambiente Web local controlado.
+## Ressalvas de aceite e demonstração
 
-## Gramática/modelagem/relatório
+- [ ] Registrar decisão de aceite numérico do T04 sem substituir o oráculo histórico para forçar PASS.
+- [ ] Registrar aceite do formato ASCII/SVG do T10, com confirmação docente quando necessária.
+- [ ] Concluir RUN-06 por outro integrante seguindo somente o README; a queda durante tarefa em rede física ainda não está demonstrada. O registro atual mostra WORKER_UNAVAILABLE, não WORKER_LOST.
+- [ ] Responsável humano conferir os casos CPUlator e tratar ou explicitar a pendência da comparação Java no caso 2.
+- [ ] Registrar o tratamento de proveniência/direitos da base, conforme [ADR-018](03_DECISOES.md#adr-018--divergência-de-privacidade-e-direitos-sobre-o-legado).
+- [ ] Trio conferir roteiro de apresentação, ambiente de demonstração e backup das evidências.
 
-- [x] BNF MiniPar 2026.2 atualizada e compatível com testes.
-- [x] Pseudocódigo Lexer.
-- [x] Pseudocódigo Parser.
-- [x] Pseudocódigo semântico e tratamento de erros.
-- [x] Pseudocódigo tabela de símbolos.
-- [x] Product Backlog.
-- [x] Sprint Backlogs.
-- [x] UML casos de uso (ajustes aprovados por A no #42; integrado em 09/11).
-- [x] UML componentes (A no #42; revisão C de 09/11 sem ressalva no runtime).
-- [x] UML classes dos componentes (A no #42; revisão C de 09/11; omissões RC-03/RC-04 corrigidas no #43).
-- [ ] Testes de integração documentados.
-- [ ] Tecnologias e ambiente declarados.
-- [ ] Prints passo a passo dos programas exigidos.
-- [ ] Relatório técnico completo e revisado.
-- [ ] **Link do GitHub na CAPA do relatório.**
-- [ ] GitHub contém código, testes e relatório; credits do legado.
-- [ ] Código com comentários explicativos relevantes.
+## Integridade e publicação
 
-## Apresentação
+Na preparação documental, somente Markdown e as instruções internas explicitamente removidas podem mudar. Código, testes, configurações, dados, capturas, resultados e PDF devem conservar os hashes anteriores.
 
-- [ ] Três integrantes conseguem explicar arquitetura e pipeline.
-- [ ] Cada um conhece seu eixo e as dependências dos outros.
-- [ ] Ensaio completo reproduzido de checkout limpo.
-- [ ] Dois hosts e CPUlator testados antes da apresentação.
-- [ ] Backups de evidências sem fingir execução ao vivo.
-- [ ] Slides e falas refletem o software realmente integrado.
-- [ ] Links, permissões e anexos testados no dia 10/11.
-
-## Escopo das marcações e início de REL-01
-
-Marcas do núcleo: PRs #14–#19/#29 e regressão REL-PRE; `par`/Fork/Join demonstrados localmente e no smoke loopback. Não atestam equivalência de todos os programas possíveis. T02/T03/T05/T06/T07: baseline de 09/11; T05 só para a entrada derivada do CORE-01. T07 inclui mutação TAC e `_GLIBCXX_ASSERTIONS`, não prova universal de ausência de erros de memória. BNF/pseudocódigos: #32 integrado e review A; backlogs: #39 integrado e atualização REL-PRE. Itens amplos de produto/interfaces seguem abertos até INT-02 e ambiente final. T01 calculado em loopback está PASS, mas a exigência mais ampla de comunicação não foi encerrada por esse recorte.
-
-- [ ] Aprovar e integrar o PR REL-PRE por revisor distinto do autor.
-- [ ] Coordenador decidir critério T04 e aceite interno ADR-014; confirmação docente separada.
-- [ ] Coordenador registrar tratamento ADR-018 com evidência de direitos/acesso.
-- [x] DOC-02: ajustes dos casos de uso aprovados por A e PR #42 integrado (09/11, a7454bc).
-- [x] C registrar revisão das seções runtime/runners da UML: [parecer C](auditorias/DOC-02_REVISAO_C_RUNTIME.md), 09/11, APROVADO COM RESSALVAS.
-- [x] Corrigir RC-01..RC-06 na UML e repetir a sonda: feito por C no #43 (sonda 862/862, Mermaid 17/17; [§5 do parecer](auditorias/DOC-02_REVISAO_C_RUNTIME.md#5-correções-aplicadas-0911-pr-43)).
-- [x] B (dono do DOC-02) aceitar as correções da UML: revisão do #43 em 10/11; ajustes não bloqueantes da §5.2 pedidos por B aplicados no mesmo PR.
-- [x] B apresentar INT-02 em base integrada com oráculos e três interfaces (#44, 09/11); A aprovou no #44 e C validou o runtime ([validação C](auditorias/INT-02_VALIDACAO_C.md)).
-- [ ] INT-02: rede real em dois computadores (B + C, roteiro do §5 do INT-02 = `runtime/README.md` §7).
-- [ ] C concluir RUN-06 por outro integrante, logs dos dois hosts; tratar RUN-05 par_rede ainda PENDING.
-- [ ] B consolidar DOC-04 com capa/link, anexos e limitações; revisão conjunta e merge.
-- [ ] Confirmar CPUlator humano e PEND-T11-04 (Java caso 2) ou registrar a limitação explicitamente para decisão.
-- [ ] Coordenador liberar `ready` do REL-01 após dependências e aceite: build de checkout limpo, logs persistidos, roteiro e limitações conferidos.
-
-Este checklist apenas prepara REL-01. Nenhuma tag, promoção para main ou declaração de prontidão é autorizada por ele.
+A verificação de integridade usa manifesto de hashes, `git diff --name-status`, `git diff --check` e conferência de branch/remoto. Não exige repetir a regressão quando os arquivos funcionais permanecem idênticos. Nenhum commit, push, mudança de remoto ou alteração no repositório original faz parte desta etapa.

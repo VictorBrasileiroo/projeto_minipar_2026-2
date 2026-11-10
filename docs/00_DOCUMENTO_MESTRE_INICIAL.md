@@ -1,5 +1,7 @@
 ## Documento Mestre Inicial de Contexto, Requisitos e Diretrizes
 
+> **Documento histórico de requisitos e planejamento inicial (15/10/2026).** As propostas, diagnósticos e pendências abaixo refletem aquela etapa, não o estado atual do compilador. Para execução e resultados consolidados, consulte o [README](../README.md), os [contratos técnicos](02_CONTRATOS_TECNICOS.md) e o [relatório acadêmico](relatorio/relatorio.pdf). As referências de autoria e a declaração de uso de IA foram preservadas.
+
 > Atualização de estado (26/10/2026): o PR #16 remove o TAC fixo e corrige a pilha do T07; ver [handoff CORE-02](auditorias/CORE-02_TAC_QUICKSORT.md). Menções ao hardcode na auditoria original são históricas. Integração e aceite global continuam pendentes.
 
 **Versão:** 0.1 — Contexto inicial consolidado  
@@ -24,7 +26,6 @@ Ele servirá como referência central para:
 - Preservar o entendimento dos requisitos e evitar perda de contexto.
 - Orientar a análise técnica da implementação MiniPar 2026.1.
 - Fundamentar o planejamento e a divisão de tarefas entre os três integrantes.
-- Fornecer contexto para agentes de IA que auxiliarão na implementação.
 - Distinguir exigências explícitas, decisões propostas e questões pendentes.
 - Estabelecer critérios para revisar o código e verificar o funcionamento.
 - Registrar decisões futuras e suas justificativas.
@@ -1282,22 +1283,9 @@ IA poderá ser utilizada para:
 
 O uso de IA não substitui a necessidade de a equipe compreender, testar e defender a implementação.
 
-## 14.2 Estratégia de execução
+## 14.2 Organização do apoio
 
-**PROPOSTO**
-
-Dividir o trabalho em tarefas com:
-
-- Problema definido.
-- Arquivos envolvidos.
-- Entradas e saídas esperadas.
-- Restrições.
-- Interfaces com outros componentes.
-- Critérios de aceite.
-- Testes obrigatórios.
-- Regras para preservar funcionalidades existentes.
-
-Evitar instruções amplas como “implemente todo o Fork/Join” sem antes definir sua semântica.
+A divisão de trabalho por componentes e os critérios de validação estão registrados no [planejamento](01_PLANEJAMENTO_GERAL.md) e nos [contratos técnicos](02_CONTRATOS_TECNICOS.md). Esta seção conserva o contexto do uso de IA, sem reproduzir prompts ou instruções internas de ferramentas.
 
 ## 14.3 Revisão do trabalho gerado
 

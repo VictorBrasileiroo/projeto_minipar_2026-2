@@ -2,6 +2,8 @@
 
 > Nenhum teste está automaticamente aprovado por aparecer nesta matriz. A auditoria inicial em C++14 é histórica; a tabela abaixo foi atualizada em 09/11/2026 com evidências no código ativo. Resultados antigos e novos permanecem separados.
 
+> **Escopo das marcações:** esta matriz preserva os critérios amplos e o aceite registrado na data indicada. PASS no harness local não encerra automaticamente pendências de formato gráfico, rede física ou conferência humana. Os resultados da versão entregue e os comandos atuais estão no [README](../README.md); as [evidências RUN-06](evidencias/RUN-06_REPRODUCAO_DOIS_PCS.md) registram a execução posterior do T08 entre dois computadores.
+
 ## 1. Protocolo de prova
 
 Cada evidência contém: ID do teste, fonte MiniPar, commit/branch, ferramenta (Python/G++/OS), comando, stdin, stdout/stderr, returncode, arquivos gerados, **oráculo** (valor/estrutura esperada), avaliação PASS/FAIL/BLOCKED/PARTIAL, data, responsável.

@@ -3,8 +3,7 @@
 > Card `WEB-05` (Eixo B). Texto pronto para o `DOC-04` copiar para o relatório. Fonte da verdade:
 > `tests/2026_2/test11/minicompilador.minipar` (código), contrato C-T11-v1
 > (`docs/02_CONTRATOS_TECNICOS.md` §3) e evidências de `T11-01` a `T11-03`. O pseudocódigo
-> abaixo segue o programa MiniPar método a método; se o programa mudar, esta seção muda junto
-> (regra 11 do `AGENTS.md`).
+> abaixo segue o programa MiniPar método a método, mantendo a correspondência entre documentação e implementação.
 
 ## 1. O que o Teste 11 pede e o que foi feito
 
@@ -353,7 +352,7 @@ No CPUlator (`https://cpulator.01xz.net/?sys=arm`, sistema ARMv7 generic): *File
   CPUlator (`r8` = −84 e intermediários), mas o Java do professor ainda não foi executado no
   caso 2 (não há JDK na máquina de desenvolvimento).
 - A execução no CPUlator do `T11-03` foi conduzida pelo agente (Claude Code) no navegador
-  embutido. Pela seção "Uso de IA" do `AGENTS.md`, um responsável humano deve repetir *File →
+  embutido. Para a conferência humana de aceite, um responsável deve repetir *File →
   Open* com os três `.arm` e conferir os registradores antes do aceite final.
 - Uma expressão por execução, como a referência: os três casos são três execuções do mesmo
   binário.

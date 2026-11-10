@@ -1,11 +1,8 @@
 # Planejamento Geral de Execução — MiniPar 2026.2
 
-> **DOCUMENTO OPERACIONAL PRINCIPAL — v0.1 (15/10/2026).**
-> Use este arquivo para decidir **o que fazer, em qual ordem, quando, quem pode começar e como validar**.
-> Os requisitos do professor estão consolidados em `00_DOCUMENTO_MESTRE_INICIAL.md`. Este plano **não altera** o enunciado.
+> **Planejamento histórico — v0.1 (15/10/2026).** Preserva a organização dos três eixos, cronograma, dependências e critérios de qualidade adotados no desenvolvimento. Propostas, responsáveis ainda a definir e instruções de branches/importação abaixo pertencem à fase inicial e ao repositório de desenvolvimento; não são passos para executar esta entrega independente em `main`.
 >
-> **Estado:** proposta detalhada pronta para revisão dos três integrantes; NÃO inicia implementação automaticamente.
-> **Prazo oficial:** 11/11/2026. **Código funcional congelado:** 03/11. **Estudo:** 04–10/11.
+> Para instalar e executar a versão implementada, consulte o [README](../README.md). Requisitos: [documento mestre](00_DOCUMENTO_MESTRE_INICIAL.md). Resultado acadêmico: [relatório em PDF](relatorio/relatorio.pdf). **Prazo oficial:** 11/11/2026.
 
 ---
 
@@ -25,7 +22,7 @@ Se faltar contrato/recurso, usar `BLOCKED` (marcação auxiliar, explicando caus
 
 **Definition of Ready (DoR)** — autoriza iniciar:
 1. Objetivo e resultado observável.
-2. Dono humano + agente responsável.
+2. Responsável pelo componente e pela execução técnica.
 3. Arquivos permitidos e proibidos.
 4. Dependências concluídas ou mock documentado.
 5. Contratos aprovados, incluindo tipos/erros.
@@ -37,7 +34,7 @@ Se faltar contrato/recurso, usar `BLOCKED` (marcação auxiliar, explicando caus
 2. Testes executados com logs e oráculos; regressão relevante aprovada.
 3. Casos de erro relevantes verificados.
 4. Integração com consumidores comprovada, não apenas interface inventada.
-5. **MANDATORY:** documentação impactada verificada após cada implementação, correção, refatoração ou alteração relevante; documentação necessária atualizada na mesma entrega/PR e citações do código real. Sempre verificar se `AGENTS.md` precisa de atualização e aplicar a regra 11 desse arquivo. Registrar a verificação no resumo final e no handoff/PR; se nenhuma atualização documental for necessária, declarar isso explicitamente com justificativa, inclusive para `AGENTS.md` quando não precisar mudar. Sem essa verificação, a implementação não está concluída.
+5. Documentação técnica alinhada ao código real, com registro dos documentos verificados e atualizados na entrega. A manutenção documental integra os critérios de conclusão.
 6. Handoff e evidência anexados; sem bloqueios ocultos.
 7. `dev` integra alterações sem regressão conhecida não registrada.
 
@@ -83,7 +80,7 @@ Se faltar contrato/recurso, usar `BLOCKED` (marcação auxiliar, explicando caus
 
 ## 3. Controle de sobreposição e política de PR
 
-**Invariante:** nunca dois agentes editando a mesma área de responsabilidade simultaneamente.
+**Invariante do planejamento:** evitar alterações simultâneas sem coordenação na mesma área de responsabilidade.
 
 | Área | Escreve | Pode ler/usar | Como pedir mudança |
 |---|---|---|---|
@@ -91,7 +88,7 @@ Se faltar contrato/recurso, usar `BLOCKED` (marcação auxiliar, explicando caus
 | `runtime/`, testes 8–10 | C | A/B | API do runtime contratada |
 | `web_didatica/`, Teste 11 | B | A/C | API de compilação contratada |
 | `legacy/` | Ninguém | Todos | Arquivo histórico, imutável |
-| `AGENTS.md`, plano, contratos, cards | Coordenador após consulta | Todos | PR de documentação |
+| Plano, contratos e cards | Coordenador após consulta | Todos | PR de documentação |
 | `docs` específicos por eixo | Dono | Todos | Review técnico do eixo consumidor |
 
 **Branches:** `eixo-a/CORE-XX-descricao`, `eixo-b/WEB-XX-descricao`, `eixo-c/RUN-XX-descricao`, `integracao/INT-XX-descricao`, `docs/DOC-XX-descricao`.
@@ -104,7 +101,7 @@ Se faltar contrato/recurso, usar `BLOCKED` (marcação auxiliar, explicando caus
 
 ## 4. Estratégia crítica: contratos ANTES de código novo
 
-A ordem inicial não é "cada um abrir Codex". É **G0: congelar três contratos v0.1**:
+A ordem inicial prevista é **G0: congelar três contratos v0.1**:
 
 1. **C-FJ — tarefas Fork/Join:** sintaxe MiniPar proposta, AST, chamadas geradas, `TaskSpec` e `TaskResult`, `join`, isolamento, destinos, framing e falhas. A consome API do C. **A e C aprovam**.
 2. **C-WEB — fases do compilador:** estrutura de resposta para tokens, AST JSON hierárquica, símbolos, erros, TAC/C++, compilação e execução; endpoints. A fornece, B consome. **A e B aprovam**.
@@ -130,7 +127,7 @@ As datas representam **prazo-limite de um resultado verificável**, não obriga�
 
 **Saída obrigatória G0 (até 18/10):** repositório preparado, build reproduzível ou bloqueio nomeado, baseline real, contratos C-FJ/C-WEB/C-T11 **aprovados**, proprietários dos arquivos e responsáveis definidos, testes para provas verticais escritos.
 
-**Se G0 falhar:** não liberar os três agentes em implementação irrestrita. Resolver contrato/build no dia seguinte, proteger as mudanças do núcleo.
+**Se G0 falhar:** resolver os bloqueios de contrato/build antes de ampliar a implementação, protegendo as mudanças do núcleo.
 
 ### M1 — 19 a 23/10 | Provas verticais dos dois maiores riscos (G1)
 
@@ -243,7 +240,7 @@ A Web é paralelizável com fixtures; seu vínculo com A ocorre em um **gate exp
 ## 9. Regras de decisão em caso de incerteza
 
 1. **Enunciado prevalece** sobre escolhas arquiteturais, sobre relatório antigo e sobre sugestão de agente.
-2. **Evidência prevalece** sobre autoconfiança do Codex.
+2. **Evidência de execução prevalece** sobre afirmações sem comprovação.
 3. **Contrato aprovado prevalece** sobre conveniência de mudança local.
 4. **Prazos de integração prevalecem** sobre aperfeiçoamento cosmético.
 5. **Reaproveitar** código 2026.1 onde válido; não apagar histórico.

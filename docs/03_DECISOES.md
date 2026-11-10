@@ -1,5 +1,7 @@
 # Registro de Decisões Técnicas — MiniPar 2026.2
 
+> **Registro histórico de decisões.** As menções a `dev`, PRs e instruções internas descrevem o repositório de desenvolvimento nas datas indicadas. Os arquivos operacionais de IA citados no histórico foram retirados do pacote acadêmico, sem alterar as decisões ou as declarações de uso de IA. Esta cópia independente usa `main`; instalação, execução e limitações estão no [README](../README.md).
+
 Regras: decisões registram **estado** (`CONFIRMADA`, `PROPOSTA`, `EM ABERTO`, `SUPERADA`), impacto, evidências e data. Não mudar contratos em silêncio. Encaminhar a mudança de contrato como CR.
 
 | ID | Estado inicial | Decisão e justificativa | Efeito |
@@ -56,7 +58,7 @@ Revisão do card `DOC-03` contra o que foi implementado e mergeado em `dev` (`59
 - Data de revisão:
 ```
 
-**Alterações já aprovadas em documento mestre não devem ser "redecididas" por agentes por conveniência.** Quando as evidências contrariarem uma decisão, abrir ADR/CR e solicitar revisão ao trio.
+**Alterações já aprovadas em documento mestre não devem ser substituídas sem registro.** Quando as evidências contrariarem uma decisão, registrar ADR/CR e revisão do trio.
 
 ## Revisão REL-PRE — 09/11/2026 (decisões ainda não tomadas)
 

@@ -6,7 +6,7 @@
 | Fonte da verdade | `src/lexer.py`, `src/parser.py`, `src/semantic.py`, `src/tac.py`, `src/service.py` |
 | Base verificada | `origin/dev` em `f54c75e` |
 | Verificação | `python docs/auditorias/DOC-01_sondas_bnf.py` (evidências em [`auditorias/DOC-01_BNF_PSEUDOCODIGOS.md`](auditorias/DOC-01_BNF_PSEUDOCODIGOS.md)) |
-| Estado | `IN_REVIEW`: falta a **aprovação de exatidão pelo Eixo A** |
+| Estado documental | DOC-01 integrado pelo PR #32 em 05/11/2026, conforme o [registro dos backlogs](14_PRODUCT_E_SPRINT_BACKLOGS.md); histórico da revisão preservado na auditoria |
 | Gramática | [`12_BNF_MINIPAR_2026_2.md`](12_BNF_MINIPAR_2026_2.md) |
 
 Os pseudocódigos seguem o código real, função por função, e citam o método

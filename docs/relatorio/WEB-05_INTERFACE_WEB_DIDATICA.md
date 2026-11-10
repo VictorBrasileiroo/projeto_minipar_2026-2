@@ -250,5 +250,5 @@ tema claro. Os ids, durações e caminhos mudam a cada execução; o conteúdo c
 - Diagnósticos com códigos ainda não ratificados no catálogo (proposta
   `docs/CR-CORE08-DIAGNOSTICOS.md`) aparecem com a mensagem do compilador e um texto genérico.
 - As figuras foram geradas por um script conduzido pelo agente (Claude Code). Elas mostram a
-  interface real, mas, pela seção "Uso de IA" do `AGENTS.md`, um responsável humano deve repetir
+  interface real; para a conferência humana de aceite, um responsável deve repetir
   o passo a passo uma vez antes do aceite final.

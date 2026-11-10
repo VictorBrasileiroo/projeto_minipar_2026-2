@@ -1,5 +1,7 @@
 # Backlog operacional detalhado — MiniPar 2026.2
 
+> **Registro histórico de desenvolvimento.** Estados, branches e próximos passos preservam as datas indicadas e não descrevem pendências atuais por inferência. O backlog estruturado não foi reclassificado na preparação da entrega. Para funcionalidades, execução e limitações atuais, consulte o [README](../README.md); para a visão acadêmica dos backlogs, consulte [Product Backlog e Sprint Backlogs](14_PRODUCT_E_SPRINT_BACKLOGS.md).
+
 > **PRÉ-ISSUES, v0.1 — 15/10/2026.** Nenhuma GitHub Issue foi criada. Fonte estruturada: `planning/cards.json`. Revisar com os três responsáveis antes de publicar.
 
 > **Estado atualizado em 09/11/2026 (`cards.json` v0.3, REL-PRE autorizado pelo coordenador).** A tabela abaixo foi conferida contra `dev` (`249afaa`, após #44), `planning/cards.json` e o GitHub; ver [REL-PRE](auditorias/REL-PRE_FECHAMENTO_EIXO_A.md). As fichas mais abaixo guardam o planejamento original ("Estado inicial"). Product Backlog e Sprint Backlogs: [`14_PRODUCT_E_SPRINT_BACKLOGS.md`](14_PRODUCT_E_SPRINT_BACKLOGS.md).
@@ -11,7 +13,7 @@
 - `BACKLOG` → `READY` → `IN_PROGRESS` → `IN_REVIEW` → `DONE`. `BLOCKED` é um impedimento rastreável, jamais uma conclusão.
 - Eixo **A é dono de `src/`**. Execução de baseline/regressão por C **não autoriza C a alterar o compilador**; C abre defeito para A.
 - B pode produzir pseudocódigos, UML e consolidar o relatório, mas **A valida detalhes do núcleo, C valida o runtime**; nenhum editor deve inventar implementação.
-- Se um contrato mudar, abrir CR conforme `docs/02_CONTRATOS_TECNICOS.md` e `AGENTS.md`.
+- Mudanças de contrato são registradas por CR conforme `docs/02_CONTRATOS_TECNICOS.md`.
 - `estimate_hours` são estimativas de supervisão e execução humana assistida por IA; **não são esforço mensurado** e podem mudar após G0.
 
 ## Estado em 09/11/2026

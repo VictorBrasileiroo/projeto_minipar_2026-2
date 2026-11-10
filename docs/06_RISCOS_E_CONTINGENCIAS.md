@@ -11,7 +11,7 @@
 | R05 | TAC fixo do Quicksort | Confirmada | Alto | Mutação T07 ainda igual | A | Implementar gerador real e testes metamórficos |
 | R06 | Bug de vetor/stack T07 | Confirmada | Alto | Execução com bounds failure | A | Corrigir lógica do teste/semântica de coleções; executar sanitizer |
 | R07 | Web didática depende de API não entregue | Média | Alto | Mock diverge da API real em 24/10 | A+B | Contrato frozen; contract tests; converter Web para consumir dados reais |
-| R08 | Confusão de arquivos por agentes | Média | Alto | PR toca `src/` por B/C sem CR | Coord | Bloquear merge; separar alteração; revisar AGENTS/ownership |
+| R08 | Confusão de arquivos por agentes | Média | Alto | PR toca `src/` por B/C sem CR | Coord | Bloquear merge; separar alteração; revisar responsabilidade por arquivos |
 | R09 | Coordenador com ≤3 h/dia vira gargalo | Alta | Alto | Mais de 2 PRs integração em fila ou >24h sem review P0 | Coord | Simplificar PRs, delegar revisão de módulos próprios, priorizar contratos e gates |
 | R10 | Disponibilidade B/C insuficiente | Desconhecida | Crítico | Sem compromisso de horas no G0 | Equipe | Revisar marcos e redistribuir **antes** do início |
 | R11 | Teste 10 GUI/Sierpinski indefinido | Média | Alto | Sem formato acordado em 20/10 | C | Implementar saída visual mínima verificável e pedir aceitação, sem alegar cumprimento automático |

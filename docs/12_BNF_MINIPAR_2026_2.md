@@ -6,7 +6,7 @@
 | Fonte da verdade | `src/lexer.py` e `src/parser.py` (léxico e sintaxe); `src/semantic.py` (restrições de contexto) |
 | Base verificada | `origin/dev` em `f54c75e` (inclui `CORE-04/05` #15, `CORE-06` #17, `CORE-07` #18/#29, `CORE-08` #19) |
 | Verificação | `python docs/auditorias/DOC-01_sondas_bnf.py`; evidências em [`auditorias/DOC-01_BNF_PSEUDOCODIGOS.md`](auditorias/DOC-01_BNF_PSEUDOCODIGOS.md) |
-| Estado | `IN_REVIEW`: falta a **aprovação de exatidão pelo Eixo A**, exigida pelo card |
+| Estado documental | DOC-01 integrado pelo PR #32 em 05/11/2026, conforme o [registro dos backlogs](14_PRODUCT_E_SPRINT_BACKLOGS.md); histórico da revisão preservado na auditoria |
 | Documento irmão | [`13_PSEUDOCODIGOS_NUCLEO.md`](13_PSEUDOCODIGOS_NUCLEO.md) |
 
 Este documento descreve a linguagem **que o compilador aceita hoje**, não a desejada.
