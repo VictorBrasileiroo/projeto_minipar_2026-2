@@ -1,0 +1,379 @@
+_CPP_HEADER = """\
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <mutex>
+#include <vector>
+#include <thread>
+#include <memory>
+#include <cstring>
+#include <chrono>
+#include <cmath>
+#include <cstdlib>
+#include <type_traits>
+#include <utility>
+#include <cstddef>
+#include <iomanip>
+#include <limits>
+#include <algorithm>
+#include <locale>
+#include <stdexcept>
+
+inline std::mutex __minipar_print_mutex;
+
+// Ativo apenas durante wrappers de tarefa e suas branches par.
+inline thread_local bool __fj_in_task = false;
+
+#ifdef _WIN32
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  #pragma comment(lib, "ws2_32.lib")
+  #define CLOSE_SOCK closesocket
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <unistd.h>
+  #include <fcntl.h>
+  #define CLOSE_SOCK close
+#endif
+
+#ifdef _WIN32
+using MiniParSocket = SOCKET;
+constexpr MiniParSocket MINIPAR_INVALID_SOCKET = INVALID_SOCKET;
+#else
+using MiniParSocket = int;
+constexpr MiniParSocket MINIPAR_INVALID_SOCKET = -1;
+#endif
+
+inline void __minipar_channel_timeout(MiniParSocket sock) {
+#ifdef _WIN32
+    DWORD timeout_ms = 5000;
+    int send_ok = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout_ms, sizeof(timeout_ms));
+    int recv_ok = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout_ms, sizeof(timeout_ms));
+#else
+    timeval timeout{5, 0};
+    int send_ok = setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+    int recv_ok = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+#endif
+    if (send_ok != 0 || recv_ok != 0)
+        throw std::runtime_error("c_channel: configurar timeout falhou");
+}
+
+inline bool __minipar_channel_connect(MiniParSocket sock, sockaddr_in& address) {
+#ifdef _WIN32
+    u_long nonblocking = 1;
+    if (ioctlsocket(sock, FIONBIO, &nonblocking) != 0) return false;
+#else
+    int flags = fcntl(sock, F_GETFL, 0);
+    if (flags < 0 || fcntl(sock, F_SETFL, flags | O_NONBLOCK) != 0) return false;
+#endif
+    int connected = connect(sock, (sockaddr*)&address, sizeof(address));
+    if (connected != 0) {
+        fd_set writable;
+        FD_ZERO(&writable);
+        FD_SET(sock, &writable);
+        timeval wait{0, 100000};
+        int selected = select(static_cast<int>(sock + 1), nullptr, &writable, nullptr, &wait);
+        int error = 0;
+#ifdef _WIN32
+        int length = sizeof(error);
+#else
+        socklen_t length = sizeof(error);
+#endif
+        connected = selected > 0 && getsockopt(sock, SOL_SOCKET, SO_ERROR,
+            (char*)&error, &length) == 0 && error == 0 ? 0 : -1;
+    }
+#ifdef _WIN32
+    nonblocking = 0;
+    if (ioctlsocket(sock, FIONBIO, &nonblocking) != 0) return false;
+#else
+    if (fcntl(sock, F_SETFL, flags) != 0) return false;
+#endif
+    return connected == 0;
+}
+
+// Helper para Random nativo
+double random_val() { return (double)rand() / RAND_MAX; }
+
+// Helper para Input
+std::string input() {
+    std::string s;
+    std::getline(std::cin, s);
+    return s;
+}
+
+std::string input(const std::string& prompt) {
+    std::cout << prompt;
+    return input();
+}
+
+// Bloqueia a conversao silenciosa std::string = numero/char em caminhos genericos.
+template<typename T, typename V>
+decltype(auto) __minipar_assign(T& target, const V& value) {
+    constexpr bool invalid = std::is_same_v<std::decay_t<T>, std::string>
+                             && std::is_arithmetic_v<std::decay_t<V>>;
+    static_assert(!invalid, "Tipo incompativel em atribuicao: string exige texto");
+    if constexpr (!invalid) return target = value;
+}
+
+// Indexacao textual nao faz parte do recorte C-T11-v1. MiniParLine aparece
+// na instanciação do diagnostico C++, inclusive para parametros genericos.
+template<int MiniParLine, typename T, typename I>
+decltype(auto) __minipar_index(T&& value, I index) {
+    constexpr bool invalid = std::is_same_v<std::decay_t<T>, std::string>;
+    static_assert(!invalid, "Indexacao de string nao suportada; use substr(s, i, 1)");
+    // Nao materializar copia/local: a referencia pertence a colecao original.
+    // Temporarios do chamador vivem ate o fim da expressao completa.
+    if constexpr (!invalid) return std::forward<T>(value)[index];
+}
+
+// C-T11-v1: comprimento assinado; strings sao medidas em bytes.
+template<typename T>
+std::ptrdiff_t __minipar_len(const T& value) {
+    return static_cast<std::ptrdiff_t>(value.size());
+}
+
+template<typename I, typename N>
+std::string __minipar_substr(const std::string& s, I start, N count) {
+    static_assert(std::is_arithmetic_v<I> && !std::is_same_v<I, bool>
+                  && std::is_arithmetic_v<N> && !std::is_same_v<N, bool>,
+                  "substr exige inicio e tamanho numericos");
+    const double inicio = static_cast<double>(start);
+    const double tamanho = static_cast<double>(count);
+    // Validar antes de converter para size_t: nada de truncar, overflow ou recorte automatico.
+    const double length = static_cast<double>(s.size());
+    if (!std::isfinite(inicio) || !std::isfinite(tamanho)
+            || std::trunc(inicio) != inicio || std::trunc(tamanho) != tamanho
+            || inicio < 0 || tamanho < 0 || inicio > length || tamanho > length - inicio) {
+        std::cout.flush();
+        std::cerr << "Erro de execucao: substr indices invalidos (inicio=" << inicio
+                  << ", tamanho=" << tamanho << ", len=" << s.size() << ")" << std::endl;
+        if (__fj_in_task) throw std::out_of_range("substr indices invalidos");
+        std::exit(1);
+    }
+    return s.substr(static_cast<std::size_t>(inicio), static_cast<std::size_t>(tamanho));
+}
+
+template<typename T>
+std::string __minipar_to_string(T value) {
+    static_assert(std::is_arithmetic_v<T> && !std::is_same_v<T, bool>,
+                  "to_string exige numero");
+    std::ostringstream out;
+    out.imbue(std::locale::classic());
+    if constexpr (std::is_floating_point_v<T>) {
+        if (std::isfinite(value) && std::trunc(value) == value) {
+            // Nao converter para int: valores inteiros double podem exceder seu dominio.
+            out << std::fixed << std::setprecision(0) << (value == 0 ? T{0} : value);
+        } else {
+            out << std::setprecision(std::numeric_limits<T>::max_digits10) << value;
+        }
+    } else {
+        out << value;
+    }
+    return out.str();
+}
+
+// Converte linha com inteiros separados por espaco em vetor (ex.: "10 -3 80")
+std::vector<double> __parse_ints(const std::string& s) {
+    std::vector<double> result;
+    std::istringstream iss(s);
+    double n;
+    while (iss >> n) {
+        result.push_back(n);
+    }
+    return result;
+}
+
+std::vector<int> __minipar_range(int end) {
+    std::vector<int> values;
+    for (int i = 0; i < end; ++i) values.push_back(i);
+    return values;
+}
+
+std::vector<int> __minipar_range(int start, int end) {
+    std::vector<int> values;
+    for (int i = start; i < end; ++i) values.push_back(i);
+    return values;
+}
+
+// Helper para Arrays (.pop) do Python
+template<typename T>
+auto __array_pop(std::vector<T>& v) {
+    if (v.empty()) return T{};
+    auto val = v.back();
+    v.pop_back();
+    return val;
+}
+
+// Helper para formatar e printar std::vector (arrays e matrizes) nativamente
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
+    os << "[";
+    for (size_t i = 0; i < v.size(); ++i) {
+        os << v[i];
+        if (i != v.size() - 1) os << ", ";
+    }
+    os << "]";
+    return os;
+}
+
+template<typename T>
+std::string __to_string(const T& val) {
+    if constexpr (std::is_constructible_v<std::string, T>) {
+        return std::string(val);
+    } else {
+        return std::to_string(val);
+    }
+}
+
+template<typename T>
+auto __make_matrix(int rows, int cols, T init_val) {
+    using ActualT = std::conditional_t<std::is_same_v<std::decay_t<T>, const char*>, std::string, T>;
+    return std::vector<std::vector<ActualT>>(rows, std::vector<ActualT>(cols, init_val));
+}
+
+class MiniParChannel {
+public:
+    std::string ip;
+    int port;
+
+    MiniParChannel(std::string ip, int port) : ip(ip), port(port) {}
+
+    void sendData(std::string msg) {
+        struct sockaddr_in serv_addr{};
+        serv_addr.sin_family = AF_INET;
+        serv_addr.sin_port = htons(port);
+        if (inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr) != 1)
+            throw std::runtime_error("c_channel: endereco IPv4 invalido");
+
+        auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        for(int i=0; i<50 && std::chrono::steady_clock::now() < deadline; i++) {
+            // Winsock nao permite reutilizar um socket depois de connect() falhar.
+            MiniParSocket sock = socket(AF_INET, SOCK_STREAM, 0);
+            if (sock == MINIPAR_INVALID_SOCKET)
+                throw std::runtime_error("c_channel: socket falhou");
+            if (__minipar_channel_connect(sock, serv_addr)) {
+                try { __minipar_channel_timeout(sock); }
+                catch (...) { CLOSE_SOCK(sock); throw; }
+                size_t sent = 0;
+                while (sent < msg.size()) {
+                    int chunk = static_cast<int>(std::min(msg.size() - sent,
+                        static_cast<size_t>(std::numeric_limits<int>::max())));
+                    int n = send(sock, msg.data() + sent, chunk, 0);
+                    if (n <= 0) {
+                        CLOSE_SOCK(sock);
+                        throw std::runtime_error("c_channel: envio incompleto");
+                    }
+                    sent += static_cast<size_t>(n);
+                }
+                // Uma conexao representa uma mensagem. O ACK impede que o proximo
+                // connect alcance o listener anterior durante sua troca.
+#ifdef _WIN32
+                int stopped = shutdown(sock, SD_SEND);
+#else
+                int stopped = shutdown(sock, SHUT_WR);
+#endif
+                char ack = 0;
+                int acknowledged = stopped == 0 ? recv(sock, &ack, 1, 0) : -1;
+                CLOSE_SOCK(sock);
+                if (acknowledged != 1 || ack != 1)
+                    throw std::runtime_error("c_channel: mensagem nao confirmada");
+                return;
+            }
+            CLOSE_SOCK(sock);
+            if (std::chrono::steady_clock::now() < deadline)
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        throw std::runtime_error("c_channel: conexao falhou no limite de espera");
+    }
+
+    std::string receiveData() {
+        MiniParSocket server_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_fd == MINIPAR_INVALID_SOCKET)
+            throw std::runtime_error("c_channel: socket listener falhou");
+        int opt = 1;
+        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
+        
+        struct sockaddr_in address{};
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(port);
+        
+        if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) != 0) {
+            CLOSE_SOCK(server_fd);
+            throw std::runtime_error("c_channel: bind falhou");
+        }
+        if (listen(server_fd, 3) != 0) {
+            CLOSE_SOCK(server_fd);
+            throw std::runtime_error("c_channel: listen falhou");
+        }
+        // receive() espera ate o usuario fornecer dados ao emissor.
+        // O timeout de I/O so comeca depois de accept().
+        MiniParSocket new_socket = accept(server_fd, nullptr, nullptr);
+        if (new_socket == MINIPAR_INVALID_SOCKET) {
+            CLOSE_SOCK(server_fd);
+            throw std::runtime_error("c_channel: accept falhou");
+        }
+        try { __minipar_channel_timeout(new_socket); }
+        catch (...) { CLOSE_SOCK(new_socket); CLOSE_SOCK(server_fd); throw; }
+        std::string result;
+        char buffer[4096];
+        int n;
+        while ((n = recv(new_socket, buffer, sizeof(buffer), 0)) > 0)
+            result.append(buffer, static_cast<size_t>(n));
+        CLOSE_SOCK(server_fd);
+        if (n < 0) {
+            CLOSE_SOCK(new_socket);
+            throw std::runtime_error("c_channel: recebimento incompleto");
+        }
+        char ack = 1;
+        int acknowledged = send(new_socket, &ack, 1, 0);
+        CLOSE_SOCK(new_socket);
+        if (acknowledged != 1)
+            throw std::runtime_error("c_channel: confirmacao falhou");
+        return result;
+    }
+};
+
+"""
+
+_FJ_HEADER = r'''
+#include "minipar_rt/minipar_rt.hpp"
+#include <exception>
+
+struct __fj_scope {
+    bool previous;
+    explicit __fj_scope(bool active) : previous(__fj_in_task) { __fj_in_task = active; }
+    ~__fj_scope() { __fj_in_task = previous; }
+};
+
+// No coordenador usa a API contratada; dentro de tarefa, preserva o worker.
+inline minipar_rt::Value __fj_join(const minipar_rt::TaskHandle& h, int timeout) {
+    if (!__fj_in_task) return minipar_rt::join_or_exit(h, timeout);
+    auto r = minipar_rt::join(h, timeout);
+    if (!r.ok) throw std::runtime_error(std::string(minipar_rt::to_string(r.error.code)) + ": " + r.error.message);
+    return std::move(r.value);
+}
+
+template<typename T> int __fj_timeout(T value) {
+    double n = static_cast<double>(value);
+    if (!std::isfinite(n) || n < std::numeric_limits<int>::min() || n > std::numeric_limits<int>::max())
+        throw std::invalid_argument("timeout fora da representacao int");
+    return static_cast<int>(value);
+}
+
+template<int Line, typename T, typename I>
+decltype(auto) __fj_index(T&& value, I index) {
+    double n = static_cast<double>(index);
+    if (!std::isfinite(n) || std::trunc(n) != n || n < 0 || n >= static_cast<double>(value.size()))
+        throw std::out_of_range("indice de lista invalido na linha " + std::to_string(Line));
+    return std::forward<T>(value).at(static_cast<std::size_t>(index));
+}
+
+template<typename T> T __fj_pop(std::vector<T>& values) {
+    if (values.empty()) return T{};
+    T value = values.back(); // materializa inclusive vector<bool>::reference
+    values.pop_back();
+    return value;
+}
+'''

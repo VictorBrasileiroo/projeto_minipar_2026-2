@@ -1,0 +1,221 @@
+# MiniPar 2026.2 — Compiladores / UFAL
+
+> **Estado verificado em 09/11/2026 (REL-PRE):** núcleo, runtime e Web integrados em `dev` (`8d07433`); DEF-01/02 mergeados (#40/#41). Regressão T01–T07: seis PASS, T04 PARTIAL; smoke integrado PASS. [Pendências, evidências e decisões](docs/auditorias/REL-PRE_FECHAMENTO_EIXO_A.md). Entrega global ainda pendente de validações e decisões. A base 2026.1 permanece preservada em `legacy/`.
+> **Entrega da disciplina:** 11/11/2026. **Meta de congelamento funcional:** 03/11/2026.
+> **Estudo e ensaios:** 04–10/11/2026.
+
+## Objetivo
+
+Evoluir o compilador MiniPar 2026.1, preservando Lexer, Parser/AST, análise semântica, tabela de símbolos, TAC, geração C++ e execução nativa; implementar Fork/Join local/distribuído, testes 8–11 e uma segunda Web didática; preservar terminal e Web anterior; produzir documentação/UML e evidências.
+
+## Leia nesta ordem
+
+1. [`docs/00_DOCUMENTO_MESTRE_INICIAL.md`](docs/00_DOCUMENTO_MESTRE_INICIAL.md) — o enunciado consolidado, **fonte de requisitos**.
+2. [`docs/01_PLANEJAMENTO_GERAL.md`](docs/01_PLANEJAMENTO_GERAL.md) — **fonte principal para como agir**, prazos, gates, responsáveis, dependências, critérios de parada e contingência.
+3. [`docs/02_CONTRATOS_TECNICOS.md`](docs/02_CONTRATOS_TECNICOS.md) — APIs v1 congeladas e revisões aprovadas; pendências explicitadas.
+4. [`AGENTS.md`](AGENTS.md) e [`MEMORY.md`](MEMORY.md), quando existir — leitura obrigatória antes de iniciar qualquer tarefa; `AGENTS.md` rege pessoas e agentes antes de modificar qualquer arquivo.
+5. [`docs/04_BACKLOG.md`](docs/04_BACKLOG.md) — cards internos com IDs. As GitHub Issues serão criadas **depois** de revisar os documentos.
+6. [`docs/05_VALIDACAO_E_ACEITE.md`](docs/05_VALIDACAO_E_ACEITE.md) e [`docs/06_RISCOS_E_CONTINGENCIAS.md`](docs/06_RISCOS_E_CONTINGENCIAS.md).
+
+**MANDATORY:** toda implementação, correção, refatoração ou alteração relevante exige verificar a documentação impactada e a necessidade de atualizar `AGENTS.md`, conforme a [regra 11](AGENTS.md). As atualizações necessárias integram a mesma entrega/PR; a dispensa de atualização deve ser justificada explicitamente no resumo final.
+
+UML integrada: [casos de uso, componentes e classes](docs/15_UML_MINIPAR_2026_2.md), DOC-02/PR #42 (09/11, `a7454bc`), com aprovação A. Revisão C registrada em 09/11 com ressalvas ([parecer](docs/auditorias/DOC-02_REVISAO_C_RUNTIME.md)); correções aplicadas no PR #43 e aceitas por B (dono) na revisão de 10/11; demais limitações do fechamento permanecem no [REL-PRE](docs/auditorias/REL-PRE_FECHAMENTO_EIXO_A.md).
+
+## Papéis
+
+- **Eixo A — Núcleo:** responsável definido: coordenador do trio. Responsável por Lexer, Parser, AST, semântico, TAC, backend C++ e integração do núcleo com o runtime. Disponibilidade-alvo: **até 3h/dia**.
+- **Eixo B — Web didática + Teste 11:** José Riquelme.
+- **Eixo C — Runtime, comunicação distribuída + Testes 8–10:** Erasmo.
+
+O domínio de código é definido em [`AGENTS.md`](AGENTS.md). Mudanças nos contratos exigem aprovação antes da implementação.
+
+## Organização do repositório
+
+```text
+MINIPAR_2026_2/
+├── README.md
+├── AGENTS.md
+├── MEMORY.md
+├── .gitignore
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── docs/
+│   ├── 00_DOCUMENTO_MESTRE_INICIAL.md
+│   ├── 01_PLANEJAMENTO_GERAL.md
+│   ├── 02_CONTRATOS_TECNICOS.md
+│   ├── 03_DECISOES.md
+│   ├── 04_BACKLOG.md
+│   ├── 05_VALIDACAO_E_ACEITE.md
+│   ├── 06_RISCOS_E_CONTINGENCIAS.md
+│   ├── 07_GUIA_CODEX_E_GIT.md
+│   ├── 08_ESTADO_DA_BASE_2026_1.md
+│   ├── 09_ESTUDO_APRESENTACAO.md
+│   ├── 10_GUIA_SETUP_REPOSITORIO.md
+│   ├── 11_CHECKLIST_DE_ENTREGA.md
+│   ├── 12_BNF_MINIPAR_2026_2.md
+│   ├── 13_PSEUDOCODIGOS_NUCLEO.md
+│   ├── 14_PRODUCT_E_SPRINT_BACKLOGS.md  # Product Backlog e Sprint Backlogs (estado real dos cards)
+│   └── auditorias/, evidencias/, relatorio/, templates/, fontes/
+├── planning/cards.json                # backlog estruturado (estado conferido com o Git); NÃO são GitHub Issues ainda
+├── scripts/
+│   ├── importar_base.py               # importa cópia local da base antiga
+│   └── validar_planejamento.py
+├── src/, main.py, app.py, menu.py     # compilador e interfaces herdados ativos
+├── templates/, static/, tests/        # Web anterior, testes e resultados esperados
+├── legacy/minipar-2026.1/             # referência imutável; 36 arquivos históricos
+├── runtime/                           # runtime Fork/Join local e remoto, Eixo C (ver runtime/README.md)
+├── web_didatica/                      # Web didática, Eixo B (ver web_didatica/README.md)
+└── tests/2026_2/                      # T08–T11, benchmark e verificações dos cards 2026.2
+```
+
+Os arquivos ativos originais já estão na **raiz**. A comparação SHA-256 do SET-01 encontrou **34 dos 36 arquivos históricos idênticos**, diferenças esperadas em `README.md` e `.gitignore`, e nenhum correspondente ausente. Evidências e comandos reproduzíveis em [`docs/auditorias/SET-01_VALIDACAO_ESTRUTURAL.md`](docs/auditorias/SET-01_VALIDACAO_ESTRUTURAL.md). Não repetir a importação neste workspace.
+
+## Como começar
+
+1. Confira branch (a padrão é `dev`; PRs vão para `dev` e exigem ao menos um revisor que não seja o autor), `git status` e a auditoria SET-01: este workspace já tem Git inicializado e remoto configurado. Não reinicialize o repositório nem importe a base novamente.
+2. Consulte o [guia de setup](docs/10_GUIA_SETUP_REPOSITORIO.md) para o ambiente; importação e SET-02 já foram integrados. Não repetir a importação.
+3. Confira as evidências de acesso e responsáveis do SET-03 em [Product/Sprint Backlogs §2.1](docs/14_PRODUCT_E_SPRINT_BACKLOGS.md).
+4. Respeite os três contratos congelados e a propriedade dos arquivos. Mudanças incompatíveis exigem CR.
+5. Consulte as [pendências REL-PRE](docs/auditorias/REL-PRE_FECHAMENTO_EIXO_A.md) antes de iniciar REL-01. As Issues continuam não publicadas; o backlog estruturado registra o estado atual.
+
+**Não declare testes aprovados nem código anterior importado até haver execução e evidências no novo repositório.**
+
+## Terminal e Web original — CORE-09
+
+Na raiz do repositório, use o Python do ambiente e configure a toolchain somente
+no processo atual:
+
+```powershell
+# Configure CXX com o executável C++20 local antes destes comandos.
+$env:PATH = (Split-Path -Parent $env:CXX) + ';' + $env:PATH
+$env:PYTHONIOENCODING = 'utf-8'
+.\.venv\Scripts\python.exe -B main.py
+```
+
+Escolha `1` para o menu de testes ou `2` para a IDE original em
+`http://127.0.0.1:5000`. A CLI direta continua disponível:
+`.\.venv\Scripts\python.exe -B main.py tests/teste7_quicksort_iterativo_tac.minipar t07`,
+seguida de `.\output\t07.exe`. A toolchain atual usa C++20; TAC e C++ são ramos
+da mesma AST. O binário tem sufixo `.exe` em todas as plataformas do backend.
+
+A Web usa o mesmo interpretador do Flask, nomes internos exclusivos por
+compilação e o JSON original (`success`, `stdout`, `stderr`, `cpp`, `tac`).
+Falhas de execução retornam `success=false`; conforme a convenção herdada, os
+logs completos, incluindo stdout parcial, ficam em `stderr` nesse caso. O prazo
+externo de compilação é 130 s, compatível com os 120 s do backend; execução
+mantém 30 s. Artefatos Web ficam em `output/ide_<uuid>.*`, sem limpeza automática;
+o fonte temporário é removido após a requisição. A IDE limpa os painéis ao
+iniciar outra compilação, inclusive em falha de conexão.
+
+As rotas de carregar teste, consultar requisitos e criar sessão aceitam somente
+o nome de um arquivo `.minipar` diretamente em `tests/`; caminhos externos,
+subdiretórios e nomes inválidos retornam HTTP 400.
+
+Validação reproduzível: `tests/2026_2/core09/test_interfaces.py`,
+`tests/2026_2/core09/smoke_http.py` (porta 5000 livre) e
+[evidências CORE-09](docs/auditorias/CORE-09_REGRESSAO_INTERFACES.md).
+Os testes usam compilador e binários reais; o smoke visual ficou bloqueado pela
+indisponibilidade do navegador de automação nesta execução.
+
+## Validação local do CORE-02
+
+O T07 ativo usa pilha dinâmica com `append`/`pop`. Seu TAC percorre a AST pelo gerador genérico, sem selecionar saída pelo nome da função. Implementação e evidências locais de 23/10/2026: [`CORE-02_TAC_QUICKSORT.md`](docs/auditorias/CORE-02_TAC_QUICKSORT.md). O PR #16 foi integrado em 29/10; a regressão REL-PRE confirmou ordenação, TAC mutado e limites.
+
+```powershell
+.\.venv\Scripts\python.exe -B -m unittest discover -s tests -p test_core02_tac.py -v
+.\.venv\Scripts\python.exe -B scripts/baseline_t01_t07.py --only T07
+.\.venv\Scripts\python.exe -B scripts/baseline_t01_t07.py --only T06
+.\.venv\Scripts\python.exe -B tests/validate_core02_native.py
+```
+
+Os validadores nativos usam `CXX`, o G++ UCRT64 local ou `--cxx CAMINHO_GPP`, sem alterar o PATH do sistema. Os artefatos e logs ficam em `output/`, ignorado pelo Git. O `.expected.tac` do T07 permanece como referência histórica; igualdade textual não é o critério de aceite.
+
+## Backend Fork/Join — CORE-07 (30/10/2026)
+
+Implementação integrada pelos PRs #18/#29: C++ com
+wrappers tipados, runtime real, mesmo binário coordenador/worker, handles/listas
+e falhas recuperáveis. Execução nativa local e entre processos no loopback
+verificada. RUN-03 (#10) documenta a demo entre computadores; provas específicas T08–T10 e reprodução RUN-06 continuam pendentes.
+
+**Integração local de 05/11/2026:** `origin/dev` contém CORE-06 (#17).
+A CLI oficial gera TAC real antes do C++ e passa contexto semântico e fonte ao
+backend; o serviço CORE-08 usa o mesmo backend e compilação limitada (120 s,
+64 KB por stream), com includes do runtime. `generate_text` e `generate`
+aceitam `semantic` da mesma AST e `source` (obrigatório em FJ para SHA-256);
+chamadas antigas sem FJ continuam compatíveis. CORE-07 foi revisado e integrado nos PRs #18/#29.
+Reprodução CLI/API/loopback e relatório em
+[integração CORE-07](docs/auditorias/CORE-07_INTEGRACAO_DEV.md).
+
+```powershell
+$env:CXX = 'C:\msys64\ucrt64\bin\g++.exe'
+$env:PATH = 'C:\msys64\ucrt64\bin;' + $env:PATH # somente este processo
+.\.venv\Scripts\python.exe -B tests/2026_2/core07/compile_backend.py tests/2026_2/core07/demo.minipar
+'local' | .\output\core07\repro\output\demo.exe
+.\.venv\Scripts\python.exe -B -m unittest discover -s tests/2026_2/core07 -v
+```
+
+Demo observada: `42 14 42`, exit 0. A suíte inicia workers somente em
+`127.0.0.1` e encerra seus próprios processos. Tipos desconhecidos, assinaturas
+incompatíveis e retornos não comprovados são recusados, sem despacho dinâmico.
+Detalhes, limites e regressões no
+[handoff CORE-07](docs/auditorias/CORE-07_BACKEND_RUNTIME.md).
+Os cards integrados e suas limitações atuais constam no [backlog](docs/04_BACKLOG.md).
+
+## Validação local do CORE-06
+
+O gerador TAC representa `fork` com captura por valor, `join`/timeout,
+regiões `par` com branches e barreira e laços `for-in` com controle de fluxo.
+Use as APIs `TACGenerator.generate_text(program)` ou `generate(program, nome)`
+após análise semântica. A CLI e o serviço integram o backend CORE-07 no recorte
+tipado documentado; gerar TAC por si só não comprova execução de tarefas.
+
+```powershell
+.\.venv\Scripts\python.exe -B -m unittest discover -s tests/2026_2/core06 -p "test_*.py" -v
+```
+
+Notação, exemplos, limites e evidências em
+[`CORE-06_TAC_FORK_JOIN.md`](docs/auditorias/CORE-06_TAC_FORK_JOIN.md).
+A implementação e a revisão corretiva estão em `2fada7c` e `33bc9d9`, na branch
+`eixo-a/CORE-06-tac-fork-join-par` ([PR #17](https://github.com/VictorBrasileiroo/minipar-2026-2/pull/17)).
+A integração de 04/11/2026 com `origin/dev` em `05b43f9` foi commitada em
+`fef7507`, com ajustes em `14fc239`, preservando o TAC e os imports por pacote
+do serviço CORE-08. `par_return` distingue término de branch do retorno de função;
+recusas TAC com localização na AST informam a linha ao serviço. Histórico,
+regressões e limites estão no handoff. CORE-06 foi integrado no PR #17 em 05/11;
+o congelamento do contrato C-FJ-v1 está registrado no [contrato](docs/02_CONTRATOS_TECNICOS.md).
+
+## Proveniência e direitos
+
+Base anterior informada no README e na BNF históricos: <https://github.com/luizwhirl/minipar-improvement>. Créditos preservados: Emanuele Vitória de Jesus Lima ([Manu-Vii](https://github.com/Manu-Vii)), José Lucas de Oliveira Quintela ([lucasqtl](https://github.com/lucasqtl)) e Luiz Miguel de Melo Bomfim ([luizwhirl](https://github.com/luizwhirl)).
+
+O código herdado está incluído neste workspace. O **commit de origem não foi comprovado**: não há manifesto `ORIGEM_SNAPSHOT.json` nem histórico Git próprio no snapshot. O HEAD auditado do repositório **2026.2** é `a37c168cd60c13ab083782877f6c56b0c588bd1b`, não o commit original. Não foram encontrados arquivo de licença ou autorização de redistribuição local; a consulta anterior de 15/10 relatava ausência de licença declarada. A verificação online desta execução não obteve a página. Preservar autoria e confirmar autorização antes de publicação pública; a situação de direitos continua pendente.
+
+## Documentos não incluídos
+
+O PDF oficial, a BNF anterior, o exemplo Python do Teste 10 e materiais de modelagem estão em [fontes](docs/fontes/). O Java integral, a saída e o ARM de referência do Teste 11 estão em [teste11](docs/fontes/teste11/). Os códigos Python completos dos testes 8 e 9 e o vídeo grande não foram localizados neste pacote. A situação pública e os direitos sobre as referências continuam pendentes na [ADR-018](docs/03_DECISOES.md).
+
+## Serviço de fases CORE-08 (integrado)
+
+`src/service.py` fornece `analyze`, `compile_program`, `execute` e `get_artifact` no envelope C-WEB-v1. A análise gera texto sem invocar G++; cada compilação nativa usa diretório próprio em `output/web/<uuid>/`. `CXX` seleciona um executável C++20, sem flags embutidas. Execução usa stdin não interativo, timeout 1–30 s e saídas limitadas a 1 MiB por stream. O registro é local ao processo e retém todas as compilações durante sua vida; não existe limpeza automática nem recuperação do registro após reiniciar.
+
+Na integração de 05/11/2026 e no smoke REL-PRE de 09/11, Fork/Join
+produz TAC, C++ e binário real pelo serviço, com execução e artefatos conferidos.
+Recusas de representação/retorno do backend geram `CPP_UNSUPPORTED_FEATURE`,
+com linha quando disponível, e impedem G++. `analyze` não registra artefatos.
+O catálogo v1.1 da CR, incluindo o tipo `task`, foi ratificado por A/B com consulta C no PR #34 (05/11); o envelope e as APIs permanecem iguais.
+`TAC_UNSUPPORTED_FEATURE` continua aplicável a outras construções não representadas.
+Detalhes e evidências: [integração CORE-06](docs/auditorias/CORE-06_TAC_FORK_JOIN.md),
+[histórico CORE-08](docs/auditorias/CORE-08_SERVICO_FASES.md) e
+[proposta de CR](docs/CR-CORE08-DIAGNOSTICOS.md).
+
+```python
+from src.service import analyze, compile_program, execute, get_artifact
+analysis = analyze("print(5);\n")
+build = compile_program("print(5);\n")
+if build["ok"]:
+    execution = execute(build["artifacts"]["binary_id"])
+    download = get_artifact(build["request_id"], "cpp")
+```
+
+A Web didática deve chamar as funções no mesmo processo. Rotas e extração `.arm` permanecem responsabilidade do B. Para repetir a validação local: `.\.venv\Scripts\python.exe -B tests/2026_2/core08/verify_core08.py` com `CXX` configurado; logs em `output/core08/`.
