@@ -27,8 +27,8 @@ A rodada local de 10/11 é preservada em `output/validacao_final/` (ignorado pel
 - [x] Evidências RUN-03, RUN-05, RUN-06, regressões e CPUlator preservadas.
 - [x] Instruções atuais de instalação, execução das três interfaces e testes no [README](../README.md) e no [guia de instalação](10_GUIA_SETUP_REPOSITORIO.md).
 - [x] Créditos da implementação herdada preservados.
-- [x] [Relatório acadêmico em PDF](relatorio/relatorio.pdf) presente, 132 páginas, 2.730.379 bytes; integridade preservada.
-- [ ] **Corrigir manualmente a capa do PDF:** ainda contém `https://github.com/VictorBrasileiroo/minipar-2026-2`; o destino desta entrega é `https://github.com/VictorBrasileiroo/projeto_minipar_2026-2`. O PDF não foi editado nesta preparação.
+- [x] [Relatório acadêmico em PDF](relatorio/relatorio.pdf) presente, 132 páginas, 2.731.741 bytes; integridade das demais páginas verificada após a correção da capa.
+- [x] **Link da capa corrigido e conferido:** `https://github.com/VictorBrasileiroo/projeto_minipar_2026-2`, no texto e no destino clicável; conferência visual e preservação dos demais elementos do relatório verificadas em 10/11/2026.
 - [ ] Equipe concluir a revisão acadêmica do PDF e conferir acesso aos arquivos após a publicação autorizada.
 
 O material de apresentação será entregue separadamente e não é um arquivo obrigatório deste repositório.
